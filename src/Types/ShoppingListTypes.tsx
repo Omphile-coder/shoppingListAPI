@@ -1,5 +1,5 @@
-export interface ShoppingListItem {
-  id: string;
+export interface item {
+  id: number;
   name: string;
   quantity: number;
   purchased: boolean;
