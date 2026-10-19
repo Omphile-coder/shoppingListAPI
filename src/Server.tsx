@@ -1,10 +1,10 @@
 import http, { IncomingMessage, ServerResponse } from "http";
+import { shoppingListRoute } from "./Routes/ShoppingListRoute.js";
 
 const PORT = 3000;
 
 const requestListener = (req: IncomingMessage, res: ServerResponse) => {
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify({ message: "Hello, World!" }));
+  shoppingListRoute(req, res);
 };
 const server = http.createServer(requestListener);
 server.listen(PORT, () => {
