@@ -4,7 +4,7 @@ import {
   updateItem,
   deleteItem,
   getItemById,
-  getItems, // Make sure to import your function to get all items!
+  getItems, 
 } from "../Controllers/ShoppingList.js";
 
 export const shoppingListRoute = (
@@ -23,7 +23,7 @@ export const shoppingListRoute = (
 
   // GET: All Items (e.g., /items)
   if (req.method === "GET" && id === undefined) {
-    const items = getItems(); // Assuming you have this function
+    const items = getItems(); 
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(items));
     return;
