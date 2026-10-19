@@ -4,24 +4,33 @@ import {
   updateItem,
   deleteItem,
   getItemById,
+  getItems, 
 } from "../Controllers/ShoppingList.js";
 
-// htttp://localhost:3000/shopping-list
 export const shoppingListRoute = (
   req: IncomingMessage,
   res: ServerResponse,
 ) => {
+  // Enforce the /items route
   if (!req.url?.startsWith("/items")) {
     res.writeHead(400, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ message: "Method Not Allowed on items" }));
+    res.end(JSON.stringify({ message: "Invalid route. Use /items" }));
     return;
   }
 
   const parts = req.url.split("/");
   const id = parts[2] ? parseInt(parts[2]) : undefined;
 
-  // GET: All Items
-  if (req.method == "GET" && id !== undefined) {
+  // GET: All Items (e.g., /items)
+  if (req.method === "GET" && id === undefined) {
+    const items = getItems(); 
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(items));
+    return;
+  }
+
+  // GET: Single Item by ID (e.g., /items/1)
+  if (req.method === "GET" && id !== undefined) {
     if (Number.isNaN(id)) {
       res.writeHead(400, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ message: "Invalid ID" }));
@@ -40,8 +49,7 @@ export const shoppingListRoute = (
   }
 
   // Delete: An Item
-
-  if (req.method == "DELETE" && id !== undefined) {
+  if (req.method === "DELETE" && id !== undefined) {
     if (Number.isNaN(id)) {
       res.writeHead(400, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ message: "Invalid ID" }));
@@ -60,8 +68,7 @@ export const shoppingListRoute = (
     return;
   }
 
-  // UPdating an Item and adding an item
-
+  // Updating an Item and adding an item
   if (req.method === "POST" || req.method === "PUT") {
     let body = "";
 
@@ -73,8 +80,7 @@ export const shoppingListRoute = (
       try {
         const parseBody = JSON.parse(body);
 
-        //   POST: Adding an Item
-
+        // POST: Adding an Item (e.g., /items)
         if (req.method === "POST") {
           const { name, quantity } = parseBody;
           if (!name || typeof name !== "string") {
@@ -95,8 +101,7 @@ export const shoppingListRoute = (
           return;
         }
 
-        //   PUT: Updating an Item
-
+        // PUT: Updating an Item (e.g., /items/1)
         if (req.method === "PUT" && id !== undefined) {
           if (Number.isNaN(id)) {
             res.writeHead(400, { "Content-Type": "application/json" });
@@ -106,7 +111,7 @@ export const shoppingListRoute = (
 
           const { name, quantity, purchased } = parseBody;
 
-          //check if the item exists first
+          // check if the item exists first
           const existingItem = getItemById(id);
           if (!existingItem) {
             res.writeHead(404, { "Content-Type": "application/json" });
@@ -125,9 +130,11 @@ export const shoppingListRoute = (
         return;
       }
     });
+    return;
   }
 
   // Fallback for unsupported methods
-  res.writeHead(400, { "Content-Type": "application/json" });
+  // Note: 405 is the proper HTTP status code for "Method Not Allowed"
+  res.writeHead(405, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ message: "Method Not Allowed" }));
 };
